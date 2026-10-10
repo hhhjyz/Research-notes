@@ -43,4 +43,4 @@ token_str = "".join(map(chr, np.maximum(elem.flatten() - self.min_token, 0).asty
 tokens.append(self.bpe_tokenizer(token_str)["input_ids"])
 ```
 
-![[Pasted image 20260325204928.png]]
+![[assets/Pasted image 20260325204928.png]]

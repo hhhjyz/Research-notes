@@ -67,6 +67,7 @@ markdown_extensions:
 plugins:
     - search
     - awesome-pages
+    - obsidian-support
 
 extra_css:
     - assets/css/round.css
@@ -83,6 +84,5 @@ extra_javascript:
 
 exclude_docs: |
     *.canvas
-    *.webp
     *.log
     .DS_Store

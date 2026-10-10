@@ -27,14 +27,14 @@
     *   输入: 文本提示词；基础视频扩散模型；初始 Gaussian latent；一个按噪声级别组织的长 latent queue。
     *   输出: 长视频 latent 序列以及解码后的视频帧，长度可远超基础模型默认长度。
     *   整体流程: 先基于 frame-level autoregressive 生成框架维护一个 latent queue；第一阶段用 zigzag 结构让 queue 内噪声变化更平缓，逐批产生处于同一中间噪声级别的 latent；第二阶段把这些 latent 作为统一噪声级别的长序列继续滑窗去噪直到 clean；同时，在整个过程中对高噪声尾部做 self-reflection 异常检测与修正，对低噪声头部引入 long-range guidance，最终输出长视频。
-    * ![[Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783596413982.webp]]
+    * ![[assets/Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783596413982.webp]]
 *   **Pipeline module 1: Frame-level autoregressive latent queue**
     *   Motivation: 如果直接把所有长视频帧一次性送进模型，显存会随长度增长，无法支持无限帧。
     *   做法: 维护长度为 denoising step 数 T 的 latent queue，队列中 latent 沿 frame 维具有递增噪声级别。每次对整个 queue 做一次 autoregressive inference，最前端 latent 被完全去噪并出队，同时在尾部补入新的 Gaussian noise latent。
     *   为什么能 work: 它把“视频长度”转化成“队列滚动次数”，模型每次只处理固定窗口，因此内存不随总帧数增长。
     *   Technical advantage: 相比 FreeLong/FreePCA 这类有限扩展方法，它真正支持 constant-memory 的无限帧生成。
 *   **Pipeline module 2: TTA Stage 1 - Zigzag Iterative Denoising**
-    *   Motivation: 标准 FIFO queue 中相邻 latent 噪声级别每帧都在变，导致滑窗输入覆盖的噪声跨度过大，训练-推理错配严重![[Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783601941027.webp]]。
+    *   Motivation: 标准 FIFO queue 中相邻 latent 噪声级别每帧都在变，导致滑窗输入覆盖的噪声跨度过大，训练-推理错配严重![[assets/Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783601941027.webp]]。
     *   做法: 把 queue 设计成 zigzag 结构，不再每个 latent 都改变噪声级别，而是每隔 `Lzig` 个 latent 才改变一次。每次从队首弹出 `Lzig` 个处于同一噪声级别的 latent，再在队尾补入 `Lzig` 个纯噪声 latent。这个阶段只做部分去噪，队首 latent 还没到 clean。
     *   为什么能 work: 噪声级别变化变慢后，模型局部窗口看到的是更平滑、更窄的噪声分布，因此更接近训练时“统一噪声”的输入条件。
     *   Technical advantage: 它没有破坏 autoregressive 机制和常数内存特性，但主动缩小了 inference noise span，是对 FIFO 的直接改进。
@@ -44,19 +44,19 @@
     *   为什么能 work: 在第二阶段，每次 denoising 输入的 latent 都具有相同噪声强度，这与模型训练范式一致，因此能显著减小错配带来的预测误差。
     *   Technical advantage: 相比只做单阶段 autoregressive 的方法，这一步相当于把“长视频生成”和“训练分布对齐”结合起来，同时仍保留固定显存。
 *   **Pipeline module 4: DCE - Self-Reflection**
-![[Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783598808316.webp]]
+![[assets/Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783598808316.webp]]
     *   Motivation: 长视频中的一致性问题如果等到后期 clean frame 才发现，纠错代价高；而现有基于外部评估器的 test-time scaling 又太慢。
     *   做法: 作者提出在 latent 空间中直接计算相邻 chunk 的 cosine similarity，作为一致性分数 `Cscore`。对 queue 尾部某个高噪声判断位置 `fjudg`，使用 `[f_judg-f_ref, f_judg - 1]` 作为参考，评估 `f_judg, f_judf+f_ref-1`， 如果相邻 chunk 的 ` Cscore ` 下降超过阈值 ` δadju `，就触发 expanded search。搜索时保留前面已经通过检查的 ` fguid ` 个 latent 作为 guiding context，对后续 latent 采样 ` nsamp ` 个候选并逐步去噪，最后选取一致性分数更高的候选替换原始片段。
-    * ![[Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783599270808.webp|274x101]] 对每一帧 latent，在 token 维度上取平均,对每一帧的 c 维向量做归一化
+    * ![[assets/Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783599270808.webp|274x101]] 对每一帧 latent，在 token 维度上取平均,对每一帧的 c 维向量做归一化
     *   为什么能 work: 研究表明 latent 之间的距离反映了对应视频帧之间的差异程度。论文观察到，高噪声 latent 与最终 clean latent 的一致性曲线虽然绝对值不同，但波动趋势高度相关，所以可以在早期 noisy stage 就定位未来可能出现的一致性断裂，并及时修复。即使在较高的噪声强度（40）下 clean latents 和 noisy latents 之间也保持强烈的相关性
-    * ![[Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783599847342.webp]]
+    * ![[assets/Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783599847342.webp]]
     *   Technical advantage: 不需要 DINO 之类外部 evaluator，也不需要为了评估中间状态而频繁额外 denoise + decode，因而比 ScalingNoise 一类方法更轻量、更适合长视频 autoregressive 场景。
 *   **Pipeline module 5: DCE - Long-Range Frame Guidance**
     *   Motivation: 滑窗去噪每次只能看局部 `f0` 个 latent，远距离帧之间缺乏直接交互，长期一致性容易退化。
-    *   做法: 当模型处理当前位置 `l` 的局部窗口时，从更早的历史位置均匀稀疏采样 `mguid` 个较干净的 latent，并把它们拼接进当前 denoising 输入。对队列头部因历史不足而无法采样的情况，则不施加该指导。![[Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783601049882.webp|373x42]]
+    *   做法: 当模型处理当前位置 `l` 的局部窗口时，从更早的历史位置均匀稀疏采样 `mguid` 个较干净的 latent，并把它们拼接进当前 denoising 输入。对队列头部因历史不足而无法采样的情况，则不施加该指导。![[assets/Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783601049882.webp|373x42]]
     *   为什么能 work: 这些更早的低噪声 latent 覆盖了更长的历史上下文，可以把远程时序信息直接注入当前局部去噪过程，从而抑制主体漂移和背景变化。
     *   Technical advantage: 实现简单，不需要改模型参数或重新训练，却显式弥补了纯局部滑窗在 long-range dependency 上的天然缺陷。
-	* ![[Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783601104013.webp|452]]
+	* ![[assets/Enhancing Train-Free Infinite-Frame Generation for Consistent Long Videos-1783601104013.webp|452]]
 
 ### 3. Experiments 
 *   **Comparison experiment**: 

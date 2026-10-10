@@ -6,7 +6,7 @@
 
 图像的整体结果和细节适用两种不同的机制来建模
 
-![[Pasted image 20260402201804.png]]
+![[assets/Pasted image 20260402201804.png]]
 
 ## tokenizer 训练
 
@@ -19,7 +19,7 @@
 	- 从预训练好的 VAR tokenizer 初始化 encoder、quantizer、decoder，**冻结 encoder 和 quantizer**，只训练 decoder
 	- 要么不经过 VQ quantizer，直接把 continuous tokens 给 decoder。要么先经过 quantizer，得到 discrete tokens， 重建
 
-![[Pasted image 20260402220653.png]]
+![[assets/Pasted image 20260402220653.png]]
 
 1. text prompt 经过一个 LLM text encoder 编码成 text tokens, 训练时，文本 token 和视觉 token 拼接起来送入 AR transformer， 得到 discrete token 加上 residual diffusion 需要的最后一层 hidden states
 2. multi-scale discrete tokens 累加求和

@@ -13,10 +13,10 @@
 
 ### Loss Function
 
-![[Pasted image 20260409171340.png]]
+![[assets/Pasted image 20260409171340.png]]
 ### Sampler
 
-![[Pasted image 20260409172300.png]]
+![[assets/Pasted image 20260409172300.png]]
 
 每一步自回归生成 条件向量 z， 以 z 和 t 作为条件，对纯噪声进行去噪
 
@@ -25,4 +25,4 @@
 **random order**： 给 decoder layer 增加 position embedding，能够识别出预测的是哪个位置
 **bidirectional attention**: 在中间层替换位置 token 的内容，对已知的 token 编码时加上位置编码
 
-![[Pasted image 20260409184234.png]]
+![[assets/Pasted image 20260409184234.png]]

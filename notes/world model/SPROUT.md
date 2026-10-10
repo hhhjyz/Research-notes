@@ -68,8 +68,8 @@ Sprout，an agentic framework： memory 是一棵时间树，在回答问题时�
 ### 2.1 Overview (全局总览)
 *   **overview pipeline:** [给定 XX 输入，首先经过 XX，然后通过 XX，最终输出 XX。]
 
-![[SPROUT-1791526184028.webp|697]]
-![[SPROUT-1791547453208.webp]]
+![[assets/SPROUT-1791526184028.webp|697]]
+![[assets/SPROUT-1791547453208.webp]]
 ### 2.2 Module 1: [核心模块 1 名称]
 *   **Motivation :** 为什么需要单独设计这个模块？
 *   **Implementation :** 这个模块具体是怎么实现的？（公式、网络结构或核心算法）
