@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for d:*)",
+      "Bash(do printf:*)",
+      "Read(//Users/hhhjyz/Library/CloudStorage/OneDrive-个人/Research/notes/**)",
+      "Bash(done)",
+      "Bash(grep -o \"static on_file_creation.\\\\{0,700\\\\}\" main.js)",
+      "Bash(env)",
+      "Bash(curl -sS -m 8 -o /dev/null -w \"curl arxiv http: %{http_code}\\\\n\" \"http://export.arxiv.org/api/query?search_query=all:electron&max_results=1\")",
+      "Bash(curl -sS -m 8 -o /dev/null -w \"curl arxiv https: %{http_code}\\\\n\" \"https://export.arxiv.org/api/query?search_query=all:electron&max_results=1\")"
+    ]
+  }
+}

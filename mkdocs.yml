@@ -1,0 +1,88 @@
+site_name: hhhjyz的科研笔记
+site_url: https://hhhjyz.github.io/Research-notes
+repo_name: hhhjyz/Research-notes
+repo_url: https://github.com/hhhjyz/Research-notes
+site_description: hhhjyz的科研笔记
+copyright: Copyright &copy; hhhjyz/All Rights Reserved.
+site_author: hhhjyz
+
+docs_dir: docs
+
+theme:
+    name: material
+    favicon: assets/image/head.jpg
+    logo: assets/image/head.jpg
+    palette:
+        - media: "(prefers-color-scheme: light)"
+          scheme: slate
+          accent: light
+          toggle:
+              icon: material/toggle-switch
+              name: Switch to dark mode
+        - media: "(prefers-color-scheme: dark)"
+          scheme: default
+          accent: cyan
+          toggle:
+              icon: material/toggle-switch-off-outline
+              name: Switch to light mode
+    language: zh
+    font: false
+    features:
+        - content.code.annotate
+        - navigation.tracking
+        - navigation.tabs
+        - navigation.indexes
+        - navigation.top
+        - navigation.sections
+        - navigation.expand
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - meta
+  - def_list
+  - attr_list
+  - md_in_html
+  - sane_lists
+  - admonition
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.snippets
+  - pymdownx.magiclink
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.arithmatex:
+      generic: true
+
+plugins:
+    - search
+    - awesome-pages
+
+extra_css:
+    - assets/css/round.css
+    - assets/css/extra.css
+    - https://fonts.loli.net/css2?family=Noto+Serif+SC&display=swap
+    - https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css
+    - https://unpkg.com/katex@0/dist/katex.min.css
+extra_javascript:
+    - assets/javascripts/mathjax.js
+    - assets/javascripts/katex.js
+    - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+    - https://unpkg.com/katex@0/dist/katex.min.js
+    - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+
+exclude_docs: |
+    *.canvas
+    *.webp
+    *.log
+    .DS_Store
